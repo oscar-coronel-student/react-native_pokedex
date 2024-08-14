@@ -12,6 +12,8 @@
   "dependencies": {
     "@react-navigation/native": "^7.0.0-rc.18",
     "@react-navigation/stack": "^7.0.0-rc.22",
+    "@tanstack/react-query": "^5.51.23",
+    "axios": "^1.7.4",
     "react": "18.2.0",
     "react-native": "0.74.5",
     "react-native-gesture-handler": "^2.18.1",
