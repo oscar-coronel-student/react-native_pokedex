@@ -1,9 +1,13 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../navigators/StackNavigator';
-import { View } from 'react-native';
-import { ActivityIndicator, Button, Text } from 'react-native-paper';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper';
 import { getPokemons } from '../../actions/pokemons/get-pokemons';
 import { useQuery } from '@tanstack/react-query';
+import { PokeballBg } from '../components/PokeballBg';
+import { globalTheme } from '../../config/theme/global-theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PokemonCard } from '../components/PokemonCard';
 
 
 interface Props extends StackScreenProps<RootStackParams, 'HomeScreen'>{
@@ -12,31 +16,41 @@ interface Props extends StackScreenProps<RootStackParams, 'HomeScreen'>{
 export const HomeScreen = ({
 }: Props) => {
 
-    const { isLoading, data } = useQuery({
+    const { top } = useSafeAreaInsets();
+
+    const { isLoading, data: pokemons = [] } = useQuery({
         queryKey: ['pokemons'],
-        queryFn: () => getPokemons(),
+        queryFn: () => getPokemons(0),
         staleTime: 1000 * 60 * 60 //60 minutos
     });
 
-    return <View>
-        <Text variant='headlineLarge'>HomeScreen</Text>
+    return <View style={[ globalTheme.globalMargin, { marginTop: top } ]}>
+        <PokeballBg style={[ styles.imgPosition ]} />
 
-        {
-            isLoading
-            ? <>
-                <ActivityIndicator />
-            </>
-            : <>
-                <View style={{
-                    width: 150,
-                    alignSelf: 'center'
-                }}>
-                    <Button icon='camera' mode='contained-tonal' onPress={() => console.log('pressed')}>
-                        Press me { data?.length }
-                    </Button>
-                </View>
-            </>
-        }
+        <FlatList
+            data={ pokemons }
+            renderItem={({ item }) => <PokemonCard pokemon={ item } />
+            }
+            keyExtractor={ ( item ) => `${ item.id }` }
+            numColumns={ 2 }
+            ListHeaderComponent={() => {
+                return <>
+                    <Text variant='displayMedium'>
+                        Pokédex
+                    </Text>
+                </>
+            }}
+            
+            showsVerticalScrollIndicator={ false }
+        />
 
     </View>
 }
+
+const styles = StyleSheet.create({
+    imgPosition: {
+        position: 'absolute',
+        top: -100,
+        right: -100
+    }
+})
