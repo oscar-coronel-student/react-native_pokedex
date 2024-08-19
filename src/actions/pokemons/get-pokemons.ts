@@ -6,7 +6,7 @@ import { PokemonMapper } from "../../infrastructure/mappers/pokemon.mapper";
 
 export const getPokemons = async (page: number, limit: number = 20): Promise<Pokemon[]>  => {
     try {
-        const endpoint = `/pokemon?offset=${ page * 10 }&limit=${ limit }`;
+        const endpoint = `/pokemon?offset=${ page * limit }&limit=${ limit }`;
 
         const { data } = await pokeApi.get<PokeAPIPaginatedResponse>( endpoint );
 
