@@ -5,7 +5,7 @@ import { RootStackParams } from '../navigators/StackNavigator';
 import { useQuery } from '@tanstack/react-query';
 import { getPokemonById } from '../../actions/pokemons/get-pokemon-by-id';
 import { FullScreenLoader } from '../components/FullScreenLoader';
-import { Chip, Text } from 'react-native-paper';
+import { Card, Chip, Text } from 'react-native-paper';
 import { Formatter } from '../../config/helpers/formatter';
 import { FadeInImage } from '../components/FadeInImage';
 import { ThemeContext } from '../context/ThemeContext';
@@ -96,6 +96,79 @@ export const PokemonScreen = ({
         />
 
 
+        {/* Games */}
+        <Text style={[ styles.subtitle ]}>Games</Text>
+        <View style={{ marginBottom: 10, marginTop: 5 }}>
+            <FlatList
+                data={ pokemon.games }
+                keyExtractor={ (item) => `${ item }` }
+                ItemSeparatorComponent={ () => <View style={{ width: 10 }} /> }
+                ListFooterComponent={() => <View style={{ width: 10 }} />}
+                ListHeaderComponent={() => <View style={{ width: 10 }} />}
+                renderItem={ ({ item }) => <Chip>
+                    <Text>{Formatter.capitalize(item)}</Text>
+                </Chip> }
+
+                horizontal
+                showsHorizontalScrollIndicator={ false }
+            />
+        </View>
+
+        {/* Stats */}
+        <Text style={[ styles.subtitle ]}>Stats</Text>
+        <View style={{ marginBottom: 10, marginTop: 5 }}>
+            <FlatList
+                data={ pokemon.stats }
+                keyExtractor={ (item) => `${ item.name }` }
+                ItemSeparatorComponent={ () => <View style={{ width: 10 }} /> }
+                ListFooterComponent={() => <View style={{ width: 10 }} />}
+                ListHeaderComponent={() => <View style={{ width: 10 }} />}
+                renderItem={ ({ item }) => <Chip>
+                    <Text>{Formatter.capitalize(item.name)} - { item.value }</Text>
+                </Chip> }
+
+                horizontal
+                showsHorizontalScrollIndicator={ false }
+            />
+        </View>
+
+        {/* Abilities */}
+        <Text style={[ styles.subtitle ]}>Abilities</Text>
+        <View style={{ marginBottom: 10, marginTop: 5 }}>
+            <FlatList
+                data={ pokemon.abilities }
+                keyExtractor={ (item) => `${ item }` }
+                ItemSeparatorComponent={ () => <View style={{ width: 10 }} /> }
+                ListFooterComponent={() => <View style={{ width: 10 }} />}
+                ListHeaderComponent={() => <View style={{ width: 10 }} />}
+                renderItem={ ({ item }) => <Chip>
+                    <Text>{Formatter.capitalize(item)}</Text>
+                </Chip> }
+
+                horizontal
+                showsHorizontalScrollIndicator={ false }
+            />
+        </View>
+
+        {/* Moves */}
+        <Text style={[ styles.subtitle ]}>Moves</Text>
+        <View style={{ marginBottom: 10, marginTop: 5 }}>
+            <FlatList
+                data={ pokemon.moves }
+                keyExtractor={ (item) => `${ item.name }` }
+                ItemSeparatorComponent={ () => <View style={{ width: 10 }} /> }
+                ListFooterComponent={() => <View style={{ width: 10 }} />}
+                ListHeaderComponent={() => <View style={{ width: 10 }} />}
+                renderItem={ ({ item }) => <Chip>
+                    <Text>{Formatter.capitalize(item.name)} - lvl: { item.level }</Text>
+                </Chip> }
+
+                horizontal
+                showsHorizontalScrollIndicator={ false }
+            />
+        </View>
+
+
         <View style={{ height: 100 }} />
     </ScrollView>
 }
@@ -145,5 +218,11 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         alignItems: 'center',
     },
+
+    subtitle: {
+        color: 'white',
+        fontSize: 18,
+        paddingStart: 10
+    }
 
 });
