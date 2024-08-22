@@ -1,7 +1,7 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../navigators/StackNavigator';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Text } from 'react-native-paper';
+import { ActivityIndicator, FAB, Text, useTheme } from 'react-native-paper';
 import { getPokemons } from '../../actions/pokemons/get-pokemons';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { PokeballBg } from '../components/PokeballBg';
@@ -15,7 +15,10 @@ interface Props extends StackScreenProps<RootStackParams, 'HomeScreen'>{
 }
 
 export const HomeScreen = ({
+    navigation
 }: Props) => {
+
+    const theme = useTheme();
 
     const { top } = useSafeAreaInsets();
     const isLoadingNextPage = useRef(false);
@@ -47,7 +50,11 @@ export const HomeScreen = ({
                 isLoadingNextPage.current = false;
             });
         }
-    }    
+    }
+
+    const handleSearch = () => {
+        navigation.navigate('SearchScreen');
+    }
 
     return <View style={[ globalTheme.globalMargin, { marginTop: top } ]}>
         <PokeballBg style={[ styles.imgPosition ]} />
@@ -69,6 +76,14 @@ export const HomeScreen = ({
             showsVerticalScrollIndicator={ false }
             onEndReached={onLoadNextPage}
             onEndReachedThreshold={0.6}
+        />
+
+        <FAB
+            label='Buscar'
+            style={[ globalTheme.fab, { backgroundColor: theme.colors.primary } ]}
+            mode='elevated'
+            color={ theme.dark ? 'black' : 'white' }
+            onPress={handleSearch}
         />
 
         {
