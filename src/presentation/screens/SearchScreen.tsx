@@ -5,10 +5,12 @@ import { RootStackParams } from '../navigators/StackNavigator';
 import { globalTheme } from '../../config/theme/global-theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActivityIndicator, TextInput, Text } from 'react-native-paper';
-import { Pokemon } from '../../domain/entities/pokemon';
 import { PokemonCard } from '../components/PokemonCard';
 import { useQuery } from '@tanstack/react-query';
 import { getPokemonsNamesWithIds } from '../../actions/pokemons/get-pokemons-names-ids';
+import { FullScreenLoader } from '../components/FullScreenLoader';
+import { getPokemonsByIds } from '../../actions/pokemons/get-pokemons-by-ids';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 
 
 interface Props extends StackScreenProps<RootStackParams, 'SearchScreen'>{
@@ -16,9 +18,13 @@ interface Props extends StackScreenProps<RootStackParams, 'SearchScreen'>{
 
 export const SearchScreen = ({
 }: Props) => {
-
     const { top } = useSafeAreaInsets();
     const [term, setTerm] = useState('');
+
+    const { debouncedValue } = useDebouncedValue({
+        value: term,
+        timer: 1000
+    })
 
     const { isLoading, data: pokemonList = [] } = useQuery({
         queryKey: ['pokemons', 'all'],
@@ -26,20 +32,33 @@ export const SearchScreen = ({
         staleTime: 1000 * 60 * 60
     });
 
-    // TODO: aplicar debouncer
     const pokemonNameIdList = useMemo(() => {
         //Es un número
-        if(!isNaN(Number(term))){
-           const pokemon = pokemonList.find( pokemon => pokemon.id === Number(term) );
+        if(!isNaN(Number(debouncedValue))){
+           const pokemon = pokemonList.find( pokemon => pokemon.id === Number(debouncedValue) );
            return pokemon ? [pokemon] : [];
         }
 
-        if(term.length < 3) return [];
+        if(debouncedValue.length < 3) return [];
         
         return pokemonList.filter( pokemon => {
-            return pokemon.name.toLowerCase().includes( term.toLowerCase() )
+            return pokemon.name.toLowerCase().includes( debouncedValue.toLowerCase() )
         })
-    }, [term]);
+    }, [debouncedValue]);
+
+
+    const {
+        isLoading: isLoadingPokemons,
+        data: pokemons = []
+    } = useQuery({
+        queryKey: ['pokemons', 'by', pokemonNameIdList],
+        queryFn: () => getPokemonsByIds( pokemonNameIdList.map( e => e.id ) ),
+        staleTime: 1000 * 60 * 5
+    });
+
+
+    if( isLoading )
+        return <FullScreenLoader />
 
     return <View style={[ globalTheme.globalMargin, { paddingTop: top } ]}>
         <TextInput
@@ -52,20 +71,21 @@ export const SearchScreen = ({
             style={{ backgroundColor: 'transparent' }}
         />
 
-        <ActivityIndicator style={{ paddingTop: 20 }} />
-
-        <Text>
-            { JSON.stringify( pokemonNameIdList, null, 3 ) }
-        </Text>
+        {
+            isLoadingPokemons && <>
+                <ActivityIndicator style={{ paddingTop: 20 }} />
+            </>
+        }
 
         <FlatList
-            data={ [] as Pokemon[] }
+            data={ pokemons }
             renderItem={({ item }) => <PokemonCard pokemon={ item } />
             }
             keyExtractor={ ( item ) => `${ item.id }` }
             numColumns={ 2 }
             showsVerticalScrollIndicator={ false }
             onEndReachedThreshold={0.6}
+            ListFooterComponent={ <View style={{ height: 80 }} /> }
         />
     </View>
 }
